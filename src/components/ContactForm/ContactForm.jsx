@@ -1,15 +1,16 @@
 import { useState } from "react";
-import { connect } from "react-redux";
-import { addContact } from "../../redux/actions/contacts";
+import { useCreateContactMutation, useFetchContactsQuery } from "../../redux/Contacts/contactsSlice";
 import PropTypes from "prop-types";
 import { Form } from "./ContactForm.styled";
 import Button from "../Utils/Button/Button";
 import Title from "../Utils/Title/Title";
 import Input from "../Utils/Input/Input";
 
-function ContactForm({ contacts, onSubmit }) {
+function ContactForm() {
   const [name, setName] = useState("");
   const [number, setNumber] = useState("");
+  const [createContact] = useCreateContactMutation();
+  const { data: contacts } = useFetchContactsQuery();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -45,7 +46,7 @@ function ContactForm({ contacts, onSubmit }) {
       return;
     }
 
-    onSubmit({ name, number });
+    createContact({ name, number });
     setName("");
     setNumber("");
   };
@@ -76,7 +77,7 @@ function ContactForm({ contacts, onSubmit }) {
       />
       <Button
         title="Add to contacts"
-        text="Add new contact"
+        text="Add"
         size={20}
         type="submit"
       />
@@ -84,23 +85,14 @@ function ContactForm({ contacts, onSubmit }) {
   );
 }
 
-const mapStateToProps = (state) => ({
-  contacts: state.contacts.items,
-});
-
-const mapDispatchToProps = (dispatch) => ({
-  onSubmit: (data) => dispatch(addContact(data)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(ContactForm);
+export default ContactForm;
 
 ContactForm.propTypes = {
   contacts: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.string.isRequired,
+      id: PropTypes.number.isRequired,
       name: PropTypes.string.isRequired,
       number: PropTypes.string.isRequired,
-    }).isRequired
-  ).isRequired,
-  onSubmit: PropTypes.func.isRequired,
+    })
+  ),
 };
